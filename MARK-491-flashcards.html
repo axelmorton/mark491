@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7a1c2e"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>MARK 491 Flashcards</title>
+<style>
+:root{--bg:#f6f4f0;--card:#fff;--ink:#1d1d1f;--mut:#6b6b70;--acc:#7a1c2e;--ok:#2e7d4f;--no:#b3541e;--line:#e2ded6}
+@media(prefers-color-scheme:dark){:root{--bg:#141416;--card:#1f1f23;--ink:#f2f2f4;--mut:#9a9aa2;--acc:#e0788c;--ok:#5cbf86;--no:#e89a62;--line:#33333a}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;min-height:100vh;padding:env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom))}
+main{max-width:560px;margin:0 auto}
+h1{font-size:22px;margin:18px 0 4px}p.sub{color:var(--mut);margin:0 0 16px;font-size:15px}
+button{font:inherit;cursor:pointer}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:15px}
+.pill.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.deck{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:14px;margin:8px 0}
+.deck b{display:block;font-size:17px}.deck span{color:var(--mut);font-size:14px}
+.bar{height:6px;background:var(--line);border-radius:3px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
+.top{display:flex;justify-content:space-between;align-items:center;margin:14px 0 10px;color:var(--mut);font-size:15px}
+.back{background:none;border:0;color:var(--acc);font-size:16px;padding:6px 0}
+.scene{perspective:1200px;margin:8px 0}
+.card{position:relative;min-height:300px;transition:transform .45s;transform-style:preserve-3d}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:auto;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.face.back{transform:rotateY(180deg)}
+.lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+.q{font-size:21px;font-weight:600}.a{font-size:18px}
+.hint{text-align:center;color:var(--mut);font-size:14px;margin:6px 0 12px}
+.act{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.act button{padding:15px;border-radius:14px;border:0;font-weight:600;font-size:17px;color:#fff}
+.g{background:var(--ok)}.s{background:var(--no)}
+.big{width:100%;padding:15px;border-radius:14px;border:0;background:var(--acc);color:#fff;font-weight:600;font-size:17px;margin-top:10px}
+.ghost{width:100%;padding:13px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin-top:8px}
+textarea{width:100%;min-height:90px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:12px;font:inherit;margin-top:10px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px;margin:8px 0;font-size:16px}
+.opt.right{border-color:var(--ok);background:rgba(46,125,79,.15)}.opt.wrong{border-color:var(--no);background:rgba(179,84,30,.15)}
+.ans{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:12px;padding:14px;margin-top:12px}
+.done{text-align:center;padding:30px 0}
+</style></head><body><main id="app"></main>
+<script>
+const DECKS=[
+{id:"types",name:"AI types and stages",cards:[
+["ANI (narrow AI)","Operates within one specific task. Example: Netflix recommendations. This is where we are now (the book calls it weak AI)."],
+["AGI (general AI)","Learns in one domain and applies it in another. Not achieved yet (the book calls it strong AI)."],
+["ASI (super AI)","Outperforms humans across cognitive domains. Theoretical, science fiction."],
+["Reactive AI","Pure cause and effect, no memory. 'If X is sensed then do Y.' Examples: out-of-office rules, old routing chatbots, IBM Deep Blue."],
+["Limited memory AI","Uses stored or training data. Most AI today and the type used most in marketing: Netflix, ChatGPT, self-driving cars."],
+["Limits of limited memory AI (name two)","Needs huge amounts of data even for simple tasks; memory is short-lived; must be retrained from scratch when the environment changes."],
+["Theory of mind AI","Understands that others have their own thoughts, motives and beliefs. Still in development (book example: Sophia)."],
+["Self-aware AI","Consciousness beyond computation. Hypothetical, not achieved, philosophically contested."],
+["Which of the four AI types fall under ANI?","Reactive and limited memory."],
+["A reactive machine is also called what kind of agent?","A stimulus-response (S-R) agent. Book example: IBM Deep Blue."],
+["Which is weak AI and which is strong AI?","ANI is weak AI. AGI is strong AI. (Searle coined the terms.)"],
+["Rule-based AI (1950s to 1970s)","Experts hand-code if/then logic."],
+["Name the three milestone eras of the textbook AI timeline","AI (1950s to 1970s), machine learning (1980s on), deep learning (2010s)."],
+["Working definition of AI","Computational systems that perform tasks we associate with human intelligence: learning, recognizing patterns, generating content, predicting or deciding. It is a moving 'frontier': early programs stop counting as AI."],
+["Who asked 'Can machines think?' and when?","Turing, 1950. The term 'AI' came from the 1955 Dartmouth workshop."]
+]},
+{id:"learning",name:"Learning methods and LLM terms",cards:[
+["Machine learning","Train a model on data to predict. Humans do feature definition (tell it what to look for)."],
+["Deep learning","Neural networks with many hidden layers, millions of permutations. Finds features itself using backpropagation (backpropagation is out of scope). Era from 2010 on (AlphaGo)."],
+["What does 'deep' refer to in deep learning?","The number of hidden layers in the neural network."],
+["Supervised learning","Labelled data plus the right answer."],
+["Unsupervised learning","Finds patterns you do not know yet. Example: what people say about your brand on Reddit."],
+["Reinforcement learning","Rewards and penalties as feedback. Why chatbots tend to tell you what you want to hear."],
+["Self-supervised learning","The AI labels unlabelled data itself. Used by almost all modern LLMs."],
+["Sejean's four learning types vs the book's five","Sejean: supervised, unsupervised, reinforcement, self-supervised. Book: supervised, unsupervised, semi-supervised, reinforcement, active (plus transfer). Learn Sejean's four for the test."],
+["LLM","Large language model. Generative AI that predicts the next token. 'Autocomplete on steroids.'"],
+["Token","A unit of input (a word, part of a word, a pixel). Not the same as a usage limit."],
+["Vector embedding","A token turned into a multi-dimensional set of numbers that carries context. More context in a prompt gives better output."],
+["Hallucination","A confident but wrong output. The model gives the most probable token sequence and cannot tell real from not real. No reasoning or judgment."],
+["Explainability","It is hard to explain why a model produced an output. No human-style 'why' (the black box)."],
+["NLP","Natural language processing: AI plus linguistics to understand and generate human language. Uses: translation, chatbots, summarization. Weak on low-resource languages."],
+["Three ways modern AI differs from earlier generations","Autonomy, learning, inscrutability."]
+]},
+{id:"risks",name:"Risks and concepts",cards:[
+["Bias","A model trained on biased data repeats the bias. Overcorrecting can add inaccuracy."],
+["Paradox of automation","We automate a task, forget how to do it, then nobody can build or fix the AI."],
+["The five dangers of AI (Chapter 1)","Lack of common sense, biased AI, explainability (black box), controllability, paradox of automation."],
+["Lack of common sense: book example","Uber surge pricing more than doubled after the 2017 London attack."],
+["Structured vs unstructured data","Clean, labelled, tabular data is usable. Scattered or paper data is not. Consultants now pitch 'fix your data first'."],
+["Garbage in, garbage out","Output quality is capped by input quality (data and prompt)."],
+["IKEA effect","You overvalue what you helped make, so be critical of your own AI-assisted output."],
+["AI perception penalty","People rate the same content lower once told AI made it, and see creators who use AI as less skilled."],
+["Why do consultants now say 'get your data right' instead of 'get AI ready'?","AI cannot do anything useful with scattered, unlabelled data, so the data has to be structured first."],
+["Human skills to double down on","Critical thinking (get organized before prompting: goal, data sources, context), continuous learning, creativity. AI output is an average, so the next idea has to come from you."],
+["The 70 to 80% claim","Sejean's illustration of garbage in, garbage out (ChatGPT output traces to Wikipedia and Reddit). Likely overstated, so say 'Sejean cited a study', do not state it as fact."]
+]},
+{id:"tools",name:"Marketing AI tools",cards:[
+["PMAX (Performance Max)","Google AI ad product. You give objective, budget, signals (instead of keywords) and creative. Google decides delivery across Search, YouTube, Gmail and more."],
+["Meta Advantage+","Meta's similar automated ad product: budget, audience, placement and catalogue creative set by AI."],
+["Custom GPT","Stored instructions plus a knowledge base (brand guidelines) so you do not restart each time."],
+["MCP","Model Context Protocol. Connects the AI to other apps (email, calendars, databases). 'Nervous system.'"],
+["API","How software requests information from other software."],
+["Skinned app","A custom interface on top of a model."],
+["Agent vs agentic AI","An agent performs a specific task. Agentic AI is agents managing agents. Vendor claims are oversold."],
+["CRAFT prompt framework (check slides)","Context, Role, Audience, Format, Task. Without context the AI 'generalizes to an average.'"]
+]},
+{id:"frameworks",name:"Frameworks and funnel",cards:[
+["The four modes of the Integration x Automation 2x2","Copilot, Agent, Assistant, Autopilot."],
+["Copilot","High integration, low automation. 'Help me in the tool I already use.' Example: Copilot inside Excel."],
+["Agent (2x2)","High integration, high automation. 'Figure out how and do it for me.' A specialized AI performing one task."],
+["Assistant","Low integration, low automation. 'I need answers when I ask.' ChatGPT-style chat."],
+["Autopilot","Low integration, high automation. 'Do this for me automatically.' Example: a Monday competitor-site report built in Zapier."],
+["Integration vs automation","Integration is how deep the tool sits in your workflow. Automation is how much it acts on its own."],
+["Funnel stages","Awareness, Consideration, Conversion, Loyalty, Advocacy."],
+["Awareness: AI application and KPI","PMAX / Advantage+ and generative ad creative. KPIs: reach, impressions, cost per click."],
+["Consideration: AI application and KPI","Recommendation engines, chatbots answering product questions. KPIs: click-through rate, time on site."],
+["Conversion: AI application and KPI","Retargeting and triggered email (Sephora abandoned-basket reminders), personalized offers. KPIs: conversion rate, orders."],
+["Forecast orders formula","Impressions x CTR x conversion rate."],
+["Loyalty: AI application and KPI","Personalization and CRM, predictive next-best offer. KPIs: repeat purchase rate, retention."],
+["Advocacy: AI application and KPI","Social listening via unsupervised learning, community insight. KPIs: reviews, referrals, sentiment."],
+["Strategy, analytics, execution loop","AI enters all three. Analytics feeds strategy, strategy directs execution, execution generates the data analytics runs on."],
+["Chapter 4 framework: three connected areas","Marketing research AI, strategic marketing AI, marketing operations AI. Outputs feed each other."],
+["Supervised vs unsupervised ML in marketing (Ch. 4)","Supervised suits mature markets. Unsupervised suits new ones."]
+]},
+{id:"readings",name:"The three readings",cards:[
+["Lemon & Verhoef: customer experience","A customer's journey with a firm over time across multiple touchpoints. Dynamic and iterative; includes past experiences and outside factors. Firms have less control (omnichannel, customer-to-customer influence)."],
+["Lemon & Verhoef: the three journey stages","Prepurchase, purchase, postpurchase."],
+["Prepurchase behaviours","Need recognition, search, consideration."],
+["Postpurchase behaviours","Usage and consumption, engagement, service requests, repurchase, word of mouth."],
+["Lemon & Verhoef: four touchpoint types","Brand-owned, partner-owned, customer-owned, social/external."],
+["Brand-owned touchpoint","The firm designs and manages it: advertising, websites, loyalty programs, the marketing mix."],
+["Customer-owned touchpoint","Outside firm and partner influence: thinking about needs, choice of payment method, using the product ('IKEA hacking'). Matters most after purchase."],
+["Rajaram & Tinguely: main argument","Generative AI can democratize scalability and creativity for SMEs (about 90% of businesses, over 50% of employment worldwide)."],
+["Sailing metaphor: crew","Employees. Competency: learning orientation, tech curiosity, adaptability."],
+["Sailing metaphor: captains","Leaders. Effective leadership (change agent, clear vision) and work values."],
+["Sailing metaphor: navigation","Internal working. Organizational culture, collaboration and cooperation."],
+["Sailing metaphor: sailing route","External partners: computing, data, foundation models, app development, research institutions."],
+["Six promises of GAI for SMEs","Productivity and changed roles, access to human knowledge, creativity and innovation, differentiation, faster product development, better decisions."],
+["Six challenges of GAI for SMEs","Adoption hurdles, accuracy (hallucinations), ethical issues, reputational and legal risks, reliance on third parties, financial burden."],
+["Adoption hurdles include...","Threat to professional identities, complexity and opacity, algorithmic aversion."],
+["Why SMEs are different","No data-science skills or infrastructure, employees wear many hats, flat hierarchies, no processes for working with external parties."],
+["Hallucination example in the SMB article","The New York attorney fined for citing fabricated cases from a chatbot."]
+]},
+{id:"textbook",name:"Textbook (Thaichon & Quach)",cards:[
+["Ch. 1 pages and Ch. 3 pages","Ch. 1 body pp. 3 to 13. Ch. 3 pp. 29 to 39."],
+["Chapter 4: examples","Starbucks AI app (about 20% of sales in a year), TGIF Conversable bot, Gap trend forecasting, Sprint retention offers, PayPal fraud detection, Amazon recommendations."],
+["Chapter 4: AI across consumption","Pre-consumption, consumption, post-consumption."],
+["AI-powered products (Ch. 5)","Products that collect data from many sources and use AI to mimic or replace customer activity (self-driving cars, recommenders). Layers: machine learning, presentation learning, deep and neural learning."],
+["AI-driven services (Ch. 6): three groups","Communication support, assistance for decision-making, enhanced customer experience service."],
+["CRM: three long-term aspects","Acquisition, retention, development."],
+["Sephora's visual tool","Helps shoppers try looks, but cannot convey feel or scent."]
+]},
+{id:"evidence",name:"Evidence bank",cards:[
+["McKinsey adoption vs scaling","89% of organizations use AI in at least one function, only 7% have fully scaled it. Competence lags adoption."],
+["Amazon recruiting tool (2018)","Trained on 10 years of male-dominated resumes, learned to penalize women. Bias in, bias out."],
+["Google Gemini images (Feb 2024)","Overcorrecting for bias produced historically inaccurate images. Fixing bias can itself fail."],
+["Target pregnancy prediction","Predicted a teen's pregnancy before her father knew. Personalization versus privacy."],
+["Air Canada chatbot (Feb 2024)","A tribunal made the airline honour a refund policy its bot invented. You own your AI's output."],
+["Rolex crown logo","An AI-suggested logo used a copyrighted crown. A client's legal team now asks for all prompts. IP risk."],
+["Author accused of AI use","Detector said 100% AI, author denied it, book dropped from a prize nomination. The AI perception penalty."],
+["Junior consultant","Kept asking AI 'what should I do now?' for a SWOT and followed it. Wrong use: no critical thinking."],
+["Finance acquaintance","Uses an agent right 95% of the time, accepts the 5% error unchecked. Verification risk."],
+["Competitor promo tracking","Weekly screenshots into Excel replaced by an automated tool. Autopilot and productivity."],
+["Cosmetics Black Friday","Chose among 20% off, free shipping and a gift using past performance, then chose the channel mix."],
+["Workshop: SMS vs email","SMS converted best (6.8%) but few impressions. Email at 20% off converted about 5% on far more volume. Ask whether channel or offer drives performance."],
+["Workshop: product launch data","Plastic-free, refillable, water-saving themes; price had lowest sentiment; Instagram/TikTok for younger groups, email for 45 to 54."]
+]},
+{id:"essays",name:"Essay and case prompts",cards:[
+["Essay: walk through the funnel with AI","Pick three stages. For each, a concrete AI tool and a KPI tied to the stage objective (PMAX for awareness, retargeting for conversion, personalization for loyalty). Close with the strategy, analytics, execution loop."],
+["Essay: two benefits, two risks, your opinion","Benefits: productivity, ideation, pattern spotting, faster media buying. Risks: bias (Amazon), hallucination (Air Canada), privacy (Target), IP (Rolex), perception penalty. Take a stance, e.g. benefits win if a human verifies output and data is structured. One example per point."],
+["Essay: client wants to be 'AI-first'","Start with data, not tools (89% vs 7%). Set goal and sources first, give context (CRAFT), verify outputs, treat output as a first draft, pilot before scaling. Warn about vendors selling tools that need data the client lacks."],
+["Essay: SMB article, promises and challenges","Ship metaphor: crew, captains, navigation, sailing route. Six promises, six challenges. Employees may resist even when owners are excited."],
+["Case drill: skincare brand (SMS 6.8% on 1,500, email 5% on 25,000, messy data, wants an LTV tool)","Issues: messy duplicate data (GIGO); SMS and email not comparable (sample size, channel); LTV tool premature (no loyalty program, little linked purchase data). First: clean and structure data. Test: same offer across channels on matched samples. Tell owner: do not buy yet."],
+["Case drill: how do you test offer vs channel?","Run the same offer through both channels on matched samples, or different offers through one channel, then compare conversion rates."],
+["Case drill: what to tell the owner about the LTV tool","Do not buy it yet. Vendors promising lifetime value without customer data are selling hope. Build the data foundation, pilot, and have a human verify outputs."],
+["Essay self-check (three things)","Did you use a definition from the notes, cite one concrete example, and state an opinion where asked? Redo any answer that misses two of three."]
+]}
+,{id:"extra",name:"Extra: prompts and CX (other notes)",cards:[
+["Zero-shot prompting","Give the task with no examples; the model relies on its pre-trained knowledge."],
+["Few-shot prompting","Put a few worked examples in the prompt to improve accuracy and match the format."],
+["Prompt chaining","Break a complex task into a series of smaller prompts, feeding each output into the next."],
+["Tree of thoughts","The model generates several candidate solutions at each step, then converges on the best. Useful for creative problem solving."],
+["Good prompt habits","Put instructions first, be specific about outcome, length, format and style, give examples, say what to do (not only what to avoid)."],
+["Treat generative AI like...","A confident but inexperienced employee: it needs clear, step-by-step instructions."],
+["Problem formulation skills (four)","Diagnosis (e.g. Five Whys), decomposition, reframing, constraint design."],
+["Three ways AI transforms customer experience","Personalization, automation, prediction."],
+["Predictive lead scoring","AI ranks leads by conversion probability so sales focuses on the most promising (e.g. frequent product page visits)."],
+["Behavioral triggers","Automated follow-ups based on customer actions, e.g. an email after repeat visits to a product page."],
+["Dynamic content","AI adapts ads and site content in real time to user preferences."],
+["Advocacy with AI","AI spots high-engagement customers and asks them for reviews or referrals; it also picks the best time and channel for outreach."]
+]}
+
+];
+
+var KEY="mark491-fc-v1",st={};
+try{st=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){st={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+var app=document.getElementById("app");
+var S={mode:"study",onlyMissed:true,deck:null,queue:[],i:0,flip:false,quiz:{}};
+function cid(d,n){return d.id+"-"+n}
+function all(){var o=[];DECKS.forEach(function(d){d.cards.forEach(function(c,n){o.push({id:cid(d,n),q:c[0],a:c[1],deck:d})})});return o}
+function cardsOf(id){return all().filter(function(c){return id==="all"||c.deck.id===id})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function stat(list){var k=0;list.forEach(function(c){if(st[c.id]==="g")k++});return k}
+function home(){
+  var t=cardsOf("all");
+  var h='<h1>MARK 491 Test 1</h1><p class="sub">Mon Oct 26. '+t.length+' cards. Progress is saved on this device.</p>';
+  h+='<div class="row"><button class="pill '+(S.mode==="study"?"on":"")+'" onclick="S.mode=\'study\';home()">Flip cards</button><button class="pill '+(S.mode==="quiz"?"on":"")+'" onclick="S.mode=\'quiz\';home()">Quiz mode</button></div>';
+  h+='<div class="row"><button class="pill '+(S.onlyMissed?"on":"")+'" onclick="S.onlyMissed=!S.onlyMissed;home()">Skip cards I know</button></div>';
+  var items=[{id:"all",name:"All decks"}].concat(DECKS);
+  items.forEach(function(d){var l=cardsOf(d.id),k=stat(l);
+    h+='<button class="deck" onclick="start(\''+d.id+'\')"><b>'+esc(d.name)+'</b><span>'+k+' of '+l.length+' known</span><div class="bar"><i style="width:'+(100*k/l.length)+'%"></i></div></button>'});
+  h+='<button class="ghost" onclick="if(confirm(\'Reset all progress?\')){st={};save();home()}">Reset progress</button>';
+  app.innerHTML=h;window.scrollTo(0,0)}
+function start(id){
+  var l=cardsOf(id);if(S.onlyMissed){var m=l.filter(function(c){return st[c.id]!=="g"});if(m.length)l=m}
+  S.deck=id;S.queue=shuffle(l);S.i=0;S.flip=false;S.quiz={};show()}
+function topbar(){return '<div class="top"><button class="back" onclick="home()">‹ Decks</button><span>'+(S.i+1)+' / '+S.queue.length+'</span></div>'}
+function show(){
+  if(S.i>=S.queue.length){var k=S.queue.filter(function(c){return st[c.id]==="g"}).length;
+    app.innerHTML='<div class="done"><h1>Round done</h1><p class="sub">'+k+' of '+S.queue.length+' marked known.</p><button class="big" onclick="start(\''+S.deck+'\')">Go again</button><button class="ghost" onclick="home()">Back to decks</button></div>';return}
+  var c=S.queue[S.i];
+  if(S.mode==="study")return showStudy(c);
+  showQuiz(c)}
+function showStudy(c){
+  app.innerHTML=topbar()+'<div class="scene" onclick="flip()"><div class="card '+(S.flip?"flip":"")+'" id="card"><div class="face"><div class="lbl">'+esc(c.deck.name)+'</div><div class="q">'+esc(c.q)+'</div></div><div class="face back"><div class="lbl">Answer</div><div class="a">'+esc(c.a)+'</div></div></div></div><div class="hint">Tap the card to flip</div><div class="act"><button class="s" onclick="mark(\'s\')">Study again</button><button class="g" onclick="mark(\'g\')">Got it</button></div>'}
+function flip(){S.flip=!S.flip;document.getElementById("card").classList.toggle("flip",S.flip)}
+function mark(v){var c=S.queue[S.i];st[c.id]=v;save();if(v==="s"){S.queue.push(c)}S.i++;S.flip=false;S.quiz={};show()}
+function opts(c){var pool=all().filter(function(x){return x.id!==c.id&&x.a.length<=90&&x.a!==c.a});
+  var same=pool.filter(function(x){return x.deck.id===c.deck.id});var src=shuffle(same.length>=3?same:pool).slice(0,3);
+  return shuffle(src.map(function(x){return x.a}).concat([c.a]))}
+function showQuiz(c){
+  var q=S.quiz,mc=c.a.length<=90;
+  if(!q.type)q.type=mc?"mc":"type";
+  var h=topbar()+'<div class="scene"><div class="card" style="min-height:0"><div class="face" style="position:static"><div class="lbl">'+esc(c.deck.name)+'</div><div class="q">'+esc(c.q)+'</div></div></div></div>';
+  if(!q.done){
+    if(q.type==="mc"){if(!q.o)q.o=opts(c);
+      q.o.forEach(function(o,n){h+='<button class="opt" onclick="pick('+n+')">'+esc(o)+'</button>'});
+      h+='<button class="ghost" onclick="S.quiz.type=\'type\';showQuiz(S.queue[S.i])">I would rather type it</button>'}
+    else{h+='<textarea id="ta" placeholder="Type your answer from memory">'+esc(q.text||"")+'</textarea><button class="big" onclick="reveal()">Check my answer</button>'+(mc?'<button class="ghost" onclick="S.quiz.type=\'mc\';showQuiz(S.queue[S.i])">Pick from choices</button>':'')}
+  }else{
+    if(q.pickedRight!==undefined)h+='<div class="hint">'+(q.pickedRight?"Correct":"Not quite")+'</div>';
+    if(q.text)h+='<div class="ans"><div class="lbl">You wrote</div>'+esc(q.text)+'</div>';
+    h+='<div class="ans"><div class="lbl">Answer</div>'+esc(c.a)+'</div><div class="act"><button class="s" onclick="mark(\'s\')">Study again</button><button class="g" onclick="mark(\'g\')">Got it</button></div>'}
+  app.innerHTML=h}
+function pick(n){var c=S.queue[S.i],q=S.quiz,r=q.o[n]===c.a;q.pickedRight=r;q.done=true;
+  showQuiz(c);var b=app.querySelectorAll(".opt");}
+function reveal(){var t=document.getElementById("ta").value;S.quiz.text=t;S.quiz.done=true;showQuiz(S.queue[S.i])}
+home();
+</script></body></html>
